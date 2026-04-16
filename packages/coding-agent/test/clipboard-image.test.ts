@@ -1,4 +1,5 @@
 import type { SpawnSyncReturns } from "child_process";
+import { readFileSync } from "fs";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
@@ -45,6 +46,20 @@ function spawnError(error: Error): SpawnSyncReturns<Buffer> {
 		error,
 	};
 }
+
+function isHostWsl(): boolean {
+	if (process.platform !== "linux") {
+		return false;
+	}
+
+	try {
+		return /microsoft|wsl/i.test(readFileSync("/proc/version", "utf-8"));
+	} catch {
+		return false;
+	}
+}
+
+const nonWslTest = isHostWsl() ? test.skip : test;
 
 describe("readClipboardImage", () => {
 	beforeEach(() => {
@@ -107,7 +122,7 @@ describe("readClipboardImage", () => {
 		expect(Array.from(result?.bytes ?? [])).toEqual([9, 8]);
 	});
 
-	test("Non-Wayland: uses clipboard", async () => {
+	nonWslTest("Non-Wayland: uses clipboard", async () => {
 		mocks.spawnSync.mockImplementation(() => {
 			throw new Error("spawnSync should not be called for non-Wayland sessions");
 		});
@@ -122,7 +137,7 @@ describe("readClipboardImage", () => {
 		expect(Array.from(result?.bytes ?? [])).toEqual([7]);
 	});
 
-	test("Non-Wayland: returns null when clipboard has no image", async () => {
+	nonWslTest("Non-Wayland: returns null when clipboard has no image", async () => {
 		mocks.spawnSync.mockImplementation(() => {
 			throw new Error("spawnSync should not be called for non-Wayland sessions");
 		});
