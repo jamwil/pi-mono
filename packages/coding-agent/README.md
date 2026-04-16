@@ -1,9 +1,11 @@
 <!-- OSS_WEEKEND_START -->
 # 🏖️ OSS Weekend
 
-**Issue tracker reopens Monday, April 20, 2026.**
+**Issue tracker reopens Monday, April 13, 2026.**
 
-OSS weekend runs Monday, April 13, 2026 through Monday, April 20, 2026. New issues and PRs from unapproved contributors are auto-closed during this time. Approved contributors can still open issues and PRs if something is genuinely urgent, but please keep that to pressing matters only. For support, join [Discord](https://discord.com/invite/3cU7Bz4UPx).
+OSS weekend runs Thursday, April 2, 2026 through Monday, April 13, 2026. New issues and PRs from unapproved contributors are auto-closed during this time. Approved contributors can still open issues and PRs if something is genuinely urgent, but please keep that to pressing matters only. For support, join [Discord](https://discord.com/invite/3cU7Bz4UPx).
+
+> _Current focus: at the moment i'm deep in refactoring internals, and need to focus._
 <!-- OSS_WEEKEND_END -->
 
 ---
@@ -270,8 +272,6 @@ Use `/settings` to modify common options, or edit JSON files directly:
 | `.pi/settings.json` | Project (overrides global) |
 
 See [docs/settings.md](docs/settings.md) for all options.
-
-To opt out of anonymous install/update telemetry tied to changelog detection, set `enableInstallTelemetry` to `false` in `settings.json`, or set `PI_TELEMETRY=0`.
 
 ---
 
@@ -595,8 +595,6 @@ pi --thinking high "Solve this complex problem"
 |----------|-------------|
 | `PI_CODING_AGENT_DIR` | Override config directory (default: `~/.pi/agent`) |
 | `PI_PACKAGE_DIR` | Override package directory (useful for Nix/Guix where store paths tokenize poorly) |
-| `PI_SKIP_VERSION_CHECK` | Skip version check at startup |
-| `PI_TELEMETRY` | Override install telemetry. Use `1`/`true`/`yes` to enable or `0`/`false`/`no` to disable |
 | `PI_CACHE_RETENTION` | Set to `long` for extended prompt cache (Anthropic: 1h, OpenAI: 24h) |
 | `VISUAL`, `EDITOR` | External editor for Ctrl+G |
 
