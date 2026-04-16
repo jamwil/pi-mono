@@ -64,6 +64,25 @@ export function executeBash(command: string, options?: BashExecutorOptions): Pro
  * Execute a bash command using custom BashOperations.
  * Used for remote execution (SSH, containers, etc.).
  */
+function closeTempFileStream(tempFileStream?: WriteStream): Promise<void> {
+	if (!tempFileStream) {
+		return Promise.resolve();
+	}
+
+	return new Promise((resolve, reject) => {
+		const onError = (error: Error) => {
+			tempFileStream.off("error", onError);
+			reject(error);
+		};
+
+		tempFileStream.once("error", onError);
+		tempFileStream.end(() => {
+			tempFileStream.off("error", onError);
+			resolve();
+		});
+	});
+}
+
 export async function executeBashWithOperations(
 	command: string,
 	cwd: string,
@@ -127,15 +146,12 @@ export async function executeBashWithOperations(
 			signal: options?.signal,
 		});
 
-		if (tempFileStream) {
-			tempFileStream.end();
-		}
-
 		const fullOutput = outputChunks.join("");
 		const truncationResult = truncateTail(fullOutput);
 		if (truncationResult.truncated) {
 			ensureTempFile();
 		}
+		await closeTempFileStream(tempFileStream);
 		const cancelled = options?.signal?.aborted ?? false;
 
 		return {
@@ -146,10 +162,6 @@ export async function executeBashWithOperations(
 			fullOutputPath: tempFilePath,
 		};
 	} catch (err) {
-		if (tempFileStream) {
-			tempFileStream.end();
-		}
-
 		// Check if it was an abort
 		if (options?.signal?.aborted) {
 			const fullOutput = outputChunks.join("");
@@ -157,6 +169,7 @@ export async function executeBashWithOperations(
 			if (truncationResult.truncated) {
 				ensureTempFile();
 			}
+			await closeTempFileStream(tempFileStream);
 			return {
 				output: truncationResult.truncated ? truncationResult.content : fullOutput,
 				exitCode: undefined,

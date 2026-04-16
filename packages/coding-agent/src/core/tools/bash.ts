@@ -30,6 +30,25 @@ function getTempFilePath(): string {
 	return join(tmpdir(), `pi-bash-${id}.log`);
 }
 
+function closeTempFileStream(tempFileStream?: ReturnType<typeof createWriteStream>): Promise<void> {
+	if (!tempFileStream) {
+		return Promise.resolve();
+	}
+
+	return new Promise((resolve, reject) => {
+		const onError = (error: Error) => {
+			tempFileStream.off("error", onError);
+			reject(error);
+		};
+
+		tempFileStream.once("error", onError);
+		tempFileStream.end(() => {
+			tempFileStream.off("error", onError);
+			resolve();
+		});
+	});
+}
+
 const bashSchema = Type.Object({
 	command: Type.String({ description: "Bash command to execute" }),
 	timeout: Type.Optional(Type.Number({ description: "Timeout in seconds (optional, no default timeout)" })),
@@ -348,7 +367,7 @@ export function createBashToolDefinition(
 					timeout,
 					env: spawnContext.env,
 				})
-					.then(({ exitCode }) => {
+					.then(async ({ exitCode }) => {
 						// Combine the rolling buffer chunks.
 						const fullBuffer = Buffer.concat(chunks);
 						const fullOutput = fullBuffer.toString("utf-8");
@@ -357,8 +376,7 @@ export function createBashToolDefinition(
 						if (truncation.truncated) {
 							ensureTempFile();
 						}
-						// Close temp file stream before building the final result.
-						if (tempFileStream) tempFileStream.end();
+						await closeTempFileStream(tempFileStream);
 						let outputText = truncation.content || "(no output)";
 						let details: BashToolDetails | undefined;
 						if (truncation.truncated) {
@@ -377,15 +395,14 @@ export function createBashToolDefinition(
 							}
 						}
 						if (exitCode !== 0 && exitCode !== null) {
-							outputText += `\n\nCommand exited with code ${exitCode}`;
-							reject(new Error(outputText));
+							reject(new Error(`${outputText}\n\nCommand exited with code ${exitCode}`));
 						} else {
 							resolve({ content: [{ type: "text", text: outputText }], details });
 						}
 					})
-					.catch((err: Error) => {
+					.catch(async (err: Error) => {
 						// Close temp file stream and include buffered output in the error message.
-						if (tempFileStream) tempFileStream.end();
+						await closeTempFileStream(tempFileStream);
 						const fullBuffer = Buffer.concat(chunks);
 						let output = fullBuffer.toString("utf-8");
 						if (err.message === "aborted") {
