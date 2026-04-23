@@ -167,6 +167,10 @@ How to disable it:
 
 See [0.67.1]. Version 0.67.0 shipped with a changelog formatting error that caused interactive startup to show only the version header instead of the full release notes.
 
+### Changed
+
+- Forked the published package metadata to `@jamwil/pi`, retargeted internal workspace imports to the fork package names, and derived the extension self-import alias from `package.json`.
+
 ## [0.66.1] - 2026-04-08
 
 ### Changed

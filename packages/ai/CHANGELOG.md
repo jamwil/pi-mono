@@ -53,6 +53,10 @@
 - Fixed Gemini 2.5 Flash Lite minimal thinking budget to use the model's supported 512-token minimum instead of the regular Flash 128-token minimum, avoiding invalid thinking budget errors ([#2861](https://github.com/badlogic/pi-mono/pull/2861) by [@JasonOA888](https://github.com/JasonOA888))
 - Fixed OpenAI Codex Responses requests to forward configured `serviceTier` values, restoring service-tier selection for Codex sessions ([#2996](https://github.com/badlogic/pi-mono/pull/2996) by [@markusylisiurunen](https://github.com/markusylisiurunen))
 
+### Changed
+
+- Forked the published package metadata to `@jamwil/pi-ai` for the `0.66.1-jamwil.0` prerelease.
+
 ## [0.66.1] - 2026-04-08
 
 ## [0.66.0] - 2026-04-08

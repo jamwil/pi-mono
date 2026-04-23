@@ -3,6 +3,11 @@
 	"compilerOptions": {
 		"noEmit": true,
 		"paths": {
+			"@jamwil/pi": ["./src/index.ts"],
+			"@jamwil/pi/hooks": ["./src/core/hooks/index.ts"],
+			"@jamwil/pi-agent-core": ["../agent/src/index.ts"],
+			"@jamwil/pi-tui": ["../tui/src/index.ts"],
+			"@jamwil/pi-ai": ["../ai/src/index.ts"],
 			"@mariozechner/pi-coding-agent": ["./src/index.ts"],
 			"@mariozechner/pi-coding-agent/hooks": ["./src/core/hooks/index.ts"],
 			"@mariozechner/pi-tui": ["../tui/src/index.ts"],

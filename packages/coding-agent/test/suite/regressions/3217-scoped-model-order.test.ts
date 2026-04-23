@@ -1,4 +1,4 @@
-import type { TUI } from "@mariozechner/pi-tui";
+import type { TUI } from "@jamwil/pi-tui";
 import stripAnsi from "strip-ansi";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { ModelSelectorComponent } from "../../../src/modes/interactive/components/model-selector.js";

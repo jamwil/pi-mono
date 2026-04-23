@@ -141,12 +141,18 @@ export const VERSION: string = pkg.version;
 // e.g., PI_CODING_AGENT_DIR or TAU_CODING_AGENT_DIR
 export const ENV_AGENT_DIR = `${APP_NAME.toUpperCase()}_CODING_AGENT_DIR`;
 
-const DEFAULT_SHARE_VIEWER_URL = "https://pi.dev/session/";
+const DEFAULT_SHARE_VIEWER_URL = "https://gist.github.com/{gistId}";
 
-/** Get the share viewer URL for a gist ID */
+/** Get the share URL for a gist ID. Use PI_SHARE_VIEWER_URL with a {gistId} placeholder to override. */
 export function getShareViewerUrl(gistId: string): string {
-	const baseUrl = process.env.PI_SHARE_VIEWER_URL || DEFAULT_SHARE_VIEWER_URL;
-	return `${baseUrl}#${gistId}`;
+	const template = process.env.PI_SHARE_VIEWER_URL || DEFAULT_SHARE_VIEWER_URL;
+	if (template.includes("{gistId}")) {
+		return template.replaceAll("{gistId}", gistId);
+	}
+	if (template.endsWith("/") || template.endsWith("#") || template.endsWith("=")) {
+		return `${template}${gistId}`;
+	}
+	return `${template}#${gistId}`;
 }
 
 // =============================================================================

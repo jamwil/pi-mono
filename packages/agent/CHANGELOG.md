@@ -14,6 +14,10 @@
 
 ## [0.67.0] - 2026-04-13
 
+### Changed
+
+- Forked the published package metadata to `@jamwil/pi-agent-core`, updated internal imports to `@jamwil/pi-ai`, and pinned the forked workspace dependency to `0.66.1-jamwil.0`.
+
 ## [0.66.1] - 2026-04-08
 
 ## [0.66.0] - 2026-04-08
