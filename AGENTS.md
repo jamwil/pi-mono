@@ -38,11 +38,8 @@ When reading issues:
   ```
 
 ## OSS Weekend
-- If the user says `enable OSS weekend mode until X`, run `node scripts/oss-weekend.mjs --mode=close --end-date=YYYY-MM-DD --git` with the requested end date
-- If the user says `end OSS weekend mode`, run `node scripts/oss-weekend.mjs --mode=open --git`
-- The script updates `README.md`, `packages/coding-agent/README.md`, and `.github/oss-weekend.json`
-- With `--git`, the script stages only those OSS weekend files, commits them, and pushes them
-- During OSS weekend, `.github/workflows/oss-weekend-issues.yml` auto-closes new issues from non-maintainers, and `.github/workflows/pr-gate.yml` auto-closes PRs from approved non-maintainers with the weekend message
+- This fork does not use the upstream OSS weekend GitHub automation.
+- Do not enable or rely on `.github/oss-weekend.json`, `.github/workflows/oss-weekend-issues.yml`, or `.github/workflows/pr-gate.yml` unless the user explicitly asks to reintroduce fork-specific equivalents.
 
 When creating issues:
 - Add `pkg:*` labels to indicate which package(s) the issue affects
@@ -63,8 +60,8 @@ When closing issues via commit:
 
 ## PR Workflow
 - Analyze PRs without pulling locally first
-- If the user approves: create a feature branch, pull PR, rebase on main, apply adjustments, commit, merge into main, push, close PR, and leave a comment in the user's tone
-- You never open PRs yourself. We work in feature branches until everything is according to the user's requirements, then merge into main, and push.
+- If the user approves: create a feature branch, pull PR, rebase on patched, apply adjustments, commit, merge into patched, push, close PR, and leave a comment in the user's tone
+- You never open PRs yourself. We work in feature branches until everything is according to the user's requirements, then merge into patched, and push.
 
 ## Tools
 - GitHub CLI for issues/PRs
@@ -169,23 +166,19 @@ For non-standard auth, create utility (e.g., `bedrock-utils.ts`) with credential
 
 ## Releasing
 
-**Lockstep versioning**: All packages always share the same version number. Every release updates all packages together.
+This fork does not use the upstream all-workspace release flow.
 
-**Version semantics** (no major releases):
-- `patch`: Bug fixes and new features
-- `minor`: API breaking changes
+### Fork release steps
 
-### Steps
-
-1. **Update CHANGELOGs**: Ensure all changes since last release are documented in the `[Unreleased]` section of each affected package's CHANGELOG.md
-
-2. **Run release script**:
+1. Determine the smallest publishable workspace set and keep the selected fork packages on the same prerelease version.
+2. Follow `docs/fork-release.md` for the manual checklist and tag format.
+3. Use the fork-safe helpers:
    ```bash
-   npm run release:patch    # Fixes and additions
-   npm run release:minor    # API breaking changes
+   npm run fork:release:plan -- --workspaces packages/coding-agent
+   npm run fork:release:dry -- --workspaces packages/coding-agent
    ```
-
-The script handles: version bump, CHANGELOG finalization, commit, tag, publish, and adding new `[Unreleased]` sections.
+4. Publish from `patched` only after a dry run passes.
+5. Use fork tags such as `fork/pi/v0.66.1-jamwil.0`, and stage release commits with explicit `git add <paths>` only.
 
 ## **CRITICAL** Tool Usage Rules **CRITICAL**
 - NEVER use sed/cat to read a file or a range of a file. Always use the read tool (use offset + limit for ranged reads).
