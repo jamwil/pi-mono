@@ -1,6 +1,6 @@
 {
-	"name": "@mariozechner/pi-agent-core",
-	"version": "0.67.0",
+	"name": "@jamwil/pi-agent-core",
+	"version": "0.66.1-jamwil.0",
 	"description": "General-purpose agent with transport abstraction, state management, and attachment support",
 	"type": "module",
 	"main": "./dist/index.js",
@@ -17,7 +17,7 @@
 		"prepublishOnly": "npm run clean && npm run build"
 	},
 	"dependencies": {
-		"@mariozechner/pi-ai": "^0.67.0"
+		"@jamwil/pi-ai": "0.66.1-jamwil.0"
 	},
 	"keywords": [
 		"ai",
@@ -30,9 +30,13 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/badlogic/pi-mono.git",
+		"url": "git+https://github.com/jamwil/pi-mono.git",
 		"directory": "packages/agent"
 	},
+	"bugs": {
+		"url": "https://github.com/jamwil/pi-mono/issues"
+	},
+	"homepage": "https://github.com/jamwil/pi-mono/tree/patched/packages/agent#readme",
 	"engines": {
 		"node": ">=20.0.0"
 	},
