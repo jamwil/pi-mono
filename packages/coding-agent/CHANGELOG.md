@@ -49,6 +49,10 @@ How to disable it:
 - Fixed editor sticky-column tracking around paste markers so vertical cursor navigation restores the column from before the cursor entered a paste marker instead of jumping inside or past pasted content ([#3092](https://github.com/badlogic/pi-mono/pull/3092) by [@Perlence](https://github.com/Perlence))
 - Fixed queued messages typed during `/tree` branch summarization to flush automatically after navigation completes, so they no longer remain stuck in the steering queue ([#3091](https://github.com/badlogic/pi-mono/pull/3091) by [@Perlence](https://github.com/Perlence))
 
+### Changed
+
+- Forked the published package metadata to `@jamwil/pi`, retargeted internal workspace imports to the fork package names, and derived the extension self-import alias from `package.json`.
+
 ## [0.66.1] - 2026-04-08
 
 ### Changed

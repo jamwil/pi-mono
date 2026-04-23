@@ -9,19 +9,19 @@ import { createRequire } from "node:module";
 import * as os from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import * as _bundledPiAgentCore from "@jamwil/pi-agent-core";
+import * as _bundledPiAi from "@jamwil/pi-ai";
+import * as _bundledPiAiOauth from "@jamwil/pi-ai/oauth";
+import type { KeyId } from "@jamwil/pi-tui";
+import * as _bundledPiTui from "@jamwil/pi-tui";
 import { createJiti } from "@mariozechner/jiti";
-import * as _bundledPiAgentCore from "@mariozechner/pi-agent-core";
-import * as _bundledPiAi from "@mariozechner/pi-ai";
-import * as _bundledPiAiOauth from "@mariozechner/pi-ai/oauth";
-import type { KeyId } from "@mariozechner/pi-tui";
-import * as _bundledPiTui from "@mariozechner/pi-tui";
 // Static imports of packages that extensions may use.
 // These MUST be static so Bun bundles them into the compiled binary.
 // The virtualModules option then makes them available to extensions.
 import * as _bundledTypebox from "@sinclair/typebox";
 import { getAgentDir, isBunBinary } from "../../config.js";
 // NOTE: This import works because loader.ts exports are NOT re-exported from index.ts,
-// avoiding a circular dependency. Extensions can import from @mariozechner/pi-coding-agent.
+// avoiding a circular dependency. Extensions can import from the package name in package.json.
 import * as _bundledPiCodingAgent from "../../index.js";
 import { createEventBus, type EventBus } from "../event-bus.js";
 import type { ExecOptions } from "../exec.js";
@@ -39,17 +39,41 @@ import type {
 	ToolDefinition,
 } from "./types.js";
 
+interface PackageManifest {
+	name?: string;
+}
+
+const require = createRequire(import.meta.url);
+const CURRENT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const PACKAGE_INDEX = path.resolve(CURRENT_DIR, "../..", "index.js");
+const PACKAGE_JSON_PATH = path.resolve(CURRENT_DIR, "../../package.json");
+const DEFAULT_SELF_PACKAGE_NAME = "@jamwil/pi";
+const LEGACY_SELF_PACKAGE_NAME = "@mariozechner/pi-coding-agent";
+
+function readSelfPackageName(): string {
+	try {
+		const pkg = JSON.parse(fs.readFileSync(PACKAGE_JSON_PATH, "utf-8")) as PackageManifest;
+		return typeof pkg.name === "string" && pkg.name.length > 0 ? pkg.name : DEFAULT_SELF_PACKAGE_NAME;
+	} catch {
+		return DEFAULT_SELF_PACKAGE_NAME;
+	}
+}
+
+const SELF_PACKAGE_NAME = readSelfPackageName();
+const SELF_PACKAGE_ALIASES = Array.from(new Set([SELF_PACKAGE_NAME, LEGACY_SELF_PACKAGE_NAME]));
+const SELF_VIRTUAL_MODULES = Object.fromEntries(
+	SELF_PACKAGE_ALIASES.map((name) => [name, _bundledPiCodingAgent] as const),
+) as Record<string, unknown>;
+
 /** Modules available to extensions via virtualModules (for compiled Bun binary) */
 const VIRTUAL_MODULES: Record<string, unknown> = {
 	"@sinclair/typebox": _bundledTypebox,
-	"@mariozechner/pi-agent-core": _bundledPiAgentCore,
-	"@mariozechner/pi-tui": _bundledPiTui,
-	"@mariozechner/pi-ai": _bundledPiAi,
-	"@mariozechner/pi-ai/oauth": _bundledPiAiOauth,
-	"@mariozechner/pi-coding-agent": _bundledPiCodingAgent,
+	"@jamwil/pi-agent-core": _bundledPiAgentCore,
+	"@jamwil/pi-tui": _bundledPiTui,
+	"@jamwil/pi-ai": _bundledPiAi,
+	"@jamwil/pi-ai/oauth": _bundledPiAiOauth,
+	...SELF_VIRTUAL_MODULES,
 };
-
-const require = createRequire(import.meta.url);
 
 /**
  * Get aliases for jiti (used in Node.js/development mode).
@@ -59,13 +83,10 @@ let _aliases: Record<string, string> | null = null;
 function getAliases(): Record<string, string> {
 	if (_aliases) return _aliases;
 
-	const __dirname = path.dirname(fileURLToPath(import.meta.url));
-	const packageIndex = path.resolve(__dirname, "../..", "index.js");
-
 	const typeboxEntry = require.resolve("@sinclair/typebox");
 	const typeboxRoot = typeboxEntry.replace(/[\\/]build[\\/]cjs[\\/]index\.js$/, "");
 
-	const packagesRoot = path.resolve(__dirname, "../../../../");
+	const packagesRoot = path.resolve(CURRENT_DIR, "../../../../");
 	const resolveWorkspaceOrImport = (workspaceRelativePath: string, specifier: string): string => {
 		const workspacePath = path.join(packagesRoot, workspaceRelativePath);
 		if (fs.existsSync(workspacePath)) {
@@ -74,14 +95,19 @@ function getAliases(): Record<string, string> {
 		return fileURLToPath(import.meta.resolve(specifier));
 	};
 
-	_aliases = {
-		"@mariozechner/pi-coding-agent": packageIndex,
-		"@mariozechner/pi-agent-core": resolveWorkspaceOrImport("agent/dist/index.js", "@mariozechner/pi-agent-core"),
-		"@mariozechner/pi-tui": resolveWorkspaceOrImport("tui/dist/index.js", "@mariozechner/pi-tui"),
-		"@mariozechner/pi-ai": resolveWorkspaceOrImport("ai/dist/index.js", "@mariozechner/pi-ai"),
-		"@mariozechner/pi-ai/oauth": resolveWorkspaceOrImport("ai/dist/oauth.js", "@mariozechner/pi-ai/oauth"),
+	const aliases: Record<string, string> = {
+		"@jamwil/pi-agent-core": resolveWorkspaceOrImport("agent/dist/index.js", "@jamwil/pi-agent-core"),
+		"@jamwil/pi-tui": resolveWorkspaceOrImport("tui/dist/index.js", "@jamwil/pi-tui"),
+		"@jamwil/pi-ai": resolveWorkspaceOrImport("ai/dist/index.js", "@jamwil/pi-ai"),
+		"@jamwil/pi-ai/oauth": resolveWorkspaceOrImport("ai/dist/oauth.js", "@jamwil/pi-ai/oauth"),
 		"@sinclair/typebox": typeboxRoot,
 	};
+
+	for (const name of SELF_PACKAGE_ALIASES) {
+		aliases[name] = PACKAGE_INDEX;
+	}
+
+	_aliases = aliases;
 
 	return _aliases;
 }

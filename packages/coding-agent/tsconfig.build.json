@@ -2,7 +2,17 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"outDir": "./dist",
-		"rootDir": "./src"
+		"rootDir": "./src",
+		"paths": {
+			"@jamwil/pi-agent-core": ["../agent/dist/index.d.ts"],
+			"@jamwil/pi-agent-core/*": ["../agent/dist/*.d.ts"],
+			"@jamwil/pi-ai": ["../ai/dist/index.d.ts"],
+			"@jamwil/pi-ai/oauth": ["../ai/dist/oauth.d.ts"],
+			"@jamwil/pi-ai/bedrock-provider": ["../ai/dist/bedrock-provider.d.ts"],
+			"@jamwil/pi-ai/*": ["../ai/dist/*.d.ts", "../ai/dist/providers/*.d.ts"],
+			"@jamwil/pi-tui": ["../tui/dist/index.d.ts"],
+			"@jamwil/pi-tui/*": ["../tui/dist/*.d.ts", "../tui/dist/components/*.d.ts"]
+		}
 	},
 	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules", "dist", "**/*.d.ts", "src/**/*.d.ts"]

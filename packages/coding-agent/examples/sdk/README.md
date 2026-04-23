@@ -1,6 +1,6 @@
 # SDK Examples
 
-Programmatic usage of pi-coding-agent via `createAgentSession()` and `createAgentSessionRuntime()`.
+Programmatic usage of pi via the published `@jamwil/pi` package and its `createAgentSession()` / `createAgentSessionRuntime()` APIs.
 
 The runtime example shows how to build a recreate function that closes over process-global fixed inputs and recreates cwd-bound services and sessions as the active session cwd changes.
 
@@ -32,7 +32,7 @@ npx tsx examples/sdk/01-minimal.ts
 ## Quick Reference
 
 ```typescript
-import { getModel } from "@mariozechner/pi-ai";
+import { getModel } from "@jamwil/pi-ai";
 import {
   AuthStorage,
   createAgentSession,
@@ -43,7 +43,7 @@ import {
   codingTools,
   readOnlyTools,
   readTool, bashTool, editTool, writeTool,
-} from "@mariozechner/pi-coding-agent";
+} from "@jamwil/pi";
 
 // Auth and models setup
 const authStorage = AuthStorage.create();
