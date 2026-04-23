@@ -1,6 +1,6 @@
 {
 	"name": "@jamwil/pi-agent-core",
-	"version": "0.66.1-jamwil.0",
+	"version": "0.67.6-jamwil.0",
 	"description": "General-purpose agent with transport abstraction, state management, and attachment support",
 	"type": "module",
 	"main": "./dist/index.js",
@@ -17,7 +17,7 @@
 		"prepublishOnly": "npm run clean && npm run build"
 	},
 	"dependencies": {
-		"@jamwil/pi-ai": "0.66.1-jamwil.0"
+		"@jamwil/pi-ai": "0.67.6-jamwil.0"
 	},
 	"keywords": [
 		"ai",
