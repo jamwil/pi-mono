@@ -163,13 +163,7 @@ How to disable it:
 - Fixed queued messages typed during `/tree` branch summarization to flush automatically after navigation completes, so they no longer remain stuck in the steering queue ([#3091](https://github.com/badlogic/pi-mono/pull/3091) by [@Perlence](https://github.com/Perlence))
 - Fixed npm package update check to work with packages on non-default registries by using `npm view` instead of hardcoded `registry.npmjs.org` fetch ([#3164](https://github.com/badlogic/pi-mono/pull/3164) by [@aliou](https://github.com/aliou))
 
-## [0.67.0] - 2026-04-13
-
 See [0.67.1]. Version 0.67.0 shipped with a changelog formatting error that caused interactive startup to show only the version header instead of the full release notes.
-
-### Changed
-
-- Forked the published package metadata to `@jamwil/pi`, retargeted internal workspace imports to the fork package names, and derived the extension self-import alias from `package.json`.
 
 ## [0.66.1] - 2026-04-08
 
