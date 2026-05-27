@@ -28,6 +28,8 @@
 		"prepublishOnly": "npm run clean && npm run build && npm run check",
 		"publish": "npm run prepublishOnly && node scripts/publish.mjs",
 		"publish:dry": "npm run prepublishOnly && node scripts/publish.mjs --dry-run",
+		"publish:coding-agent": "npm run check && npm publish -w packages/coding-agent --access public --tag latest",
+		"publish:dry:coding-agent": "npm run check && npm publish -w packages/coding-agent --access public --tag latest --dry-run",
 		"release:local": "node scripts/local-release.mjs",
 		"shrinkwrap:coding-agent": "node scripts/generate-coding-agent-shrinkwrap.mjs",
 		"release:patch": "node scripts/release.mjs patch",
