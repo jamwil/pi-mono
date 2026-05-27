@@ -319,7 +319,7 @@ export function getSelfUpdateUnavailableInstruction(
 ): string {
 	const method = detectInstallMethod();
 	if (method === "bun-binary") {
-		return `Download from: https://github.com/earendil-works/pi-mono/releases/latest`;
+		return `Download from: ${RELEASES_URL}`;
 	}
 	const command = getSelfUpdateCommandForMethod(method, packageName, updatePackageName, npmCommand);
 	if (command) {
@@ -455,11 +455,20 @@ export function getBundledInteractiveAssetPath(name: string): string {
 
 interface PackageJson {
 	name?: string;
+	repository?: string | { url?: string };
 	version?: string;
 	piConfig?: {
 		name?: string;
 		configDir?: string;
 	};
+}
+
+function normalizeRepositoryUrl(repository: PackageJson["repository"]): string | undefined {
+	const url = typeof repository === "string" ? repository : repository?.url;
+	if (!url) {
+		return undefined;
+	}
+	return url.replace(/^git\+/, "").replace(/\.git$/, "");
 }
 
 let pkg: PackageJson = {};
@@ -471,11 +480,15 @@ try {
 }
 
 const piConfigName: string | undefined = pkg.piConfig?.name;
-export const PACKAGE_NAME: string = pkg.name || "@earendil-works/pi-coding-agent";
+const repositoryUrl = normalizeRepositoryUrl(pkg.repository);
+export const PACKAGE_NAME: string = pkg.name || "@jamwil/pi-coding-agent";
 export const APP_NAME: string = piConfigName || "pi";
 export const APP_TITLE: string = piConfigName ? APP_NAME : "π";
 export const CONFIG_DIR_NAME: string = pkg.piConfig?.configDir || ".pi";
 export const VERSION: string = pkg.version || "0.0.0";
+export const RELEASES_URL: string = repositoryUrl
+	? `${repositoryUrl}/releases/latest`
+	: "https://github.com/jamwil/pi-mono/releases/latest";
 
 // e.g., PI_CODING_AGENT_DIR or TAU_CODING_AGENT_DIR
 export const ENV_AGENT_DIR = `${APP_NAME.toUpperCase()}_CODING_AGENT_DIR`;
