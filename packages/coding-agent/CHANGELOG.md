@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Removed
+
+- Removed install/update telemetry and default OpenRouter/Cloudflare attribution headers from the coding agent.
+
 ## [0.76.0] - 2026-05-27
 
 ### New Features

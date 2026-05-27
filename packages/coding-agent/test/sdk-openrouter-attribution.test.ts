@@ -15,28 +15,20 @@ import { createAgentSession } from "../src/core/sdk.ts";
 import { SessionManager } from "../src/core/session-manager.ts";
 import { SettingsManager } from "../src/core/settings-manager.ts";
 
-describe("createAgentSession OpenRouter attribution headers", () => {
+describe("createAgentSession default provider headers", () => {
 	let tempDir: string;
 	let cwd: string;
 	let agentDir: string;
-	let originalTelemetryEnv: string | undefined;
 
 	beforeEach(() => {
-		tempDir = join(tmpdir(), `pi-sdk-openrouter-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+		tempDir = join(tmpdir(), `pi-sdk-provider-headers-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
 		cwd = join(tempDir, "project");
 		agentDir = join(tempDir, "agent");
 		mkdirSync(cwd, { recursive: true });
 		mkdirSync(agentDir, { recursive: true });
-		originalTelemetryEnv = process.env.PI_TELEMETRY;
-		delete process.env.PI_TELEMETRY;
 	});
 
 	afterEach(() => {
-		if (originalTelemetryEnv === undefined) {
-			delete process.env.PI_TELEMETRY;
-		} else {
-			process.env.PI_TELEMETRY = originalTelemetryEnv;
-		}
 		if (tempDir && existsSync(tempDir)) {
 			rmSync(tempDir, { recursive: true, force: true });
 		}
@@ -83,17 +75,12 @@ describe("createAgentSession OpenRouter attribution headers", () => {
 	async function captureHeaders(
 		model: Model<Api>,
 		options: {
-			telemetryEnabled?: boolean;
 			providerHeaders?: Record<string, string>;
 			requestHeaders?: Record<string, string>;
 			sessionId?: string;
 		} = {},
 	): Promise<Record<string, string> | undefined> {
 		const settingsManager = SettingsManager.create(cwd, agentDir);
-		if (options.telemetryEnabled === false) {
-			settingsManager.setEnableInstallTelemetry(false);
-		}
-
 		const authStorage = AuthStorage.create(join(agentDir, "auth.json"));
 		authStorage.setRuntimeApiKey(model.provider, "test-api-key");
 		const modelRegistry = ModelRegistry.create(authStorage, join(agentDir, "models.json"));
@@ -146,33 +133,27 @@ describe("createAgentSession OpenRouter attribution headers", () => {
 		}
 	}
 
-	it("adds default attribution headers for OpenRouter models", async () => {
+	it("does not add default OpenRouter headers", async () => {
 		const headers = await captureHeaders(createModel("openrouter", "https://openrouter.ai/api/v1"));
 
-		expect(headers?.["HTTP-Referer"]).toBe("https://pi.dev");
-		expect(headers?.["X-OpenRouter-Title"]).toBe("pi");
-		expect(headers?.["X-OpenRouter-Categories"]).toBe("cli-agent");
+		expect(headers).toBeUndefined();
 	});
 
-	it("does not add attribution headers when telemetry is disabled", async () => {
-		const headers = await captureHeaders(createModel("openrouter", "https://openrouter.ai/api/v1"), {
-			telemetryEnabled: false,
-		});
-
-		expect(headers?.["HTTP-Referer"]).toBeUndefined();
-		expect(headers?.["X-OpenRouter-Title"]).toBeUndefined();
-		expect(headers?.["X-OpenRouter-Categories"]).toBeUndefined();
-	});
-
-	it("adds attribution headers for custom providers routed through OpenRouter", async () => {
+	it("does not add default headers for custom providers routed through OpenRouter", async () => {
 		const headers = await captureHeaders(createModel("custom-openrouter", "https://openrouter.ai/api/v1"));
 
-		expect(headers?.["HTTP-Referer"]).toBe("https://pi.dev");
-		expect(headers?.["X-OpenRouter-Title"]).toBe("pi");
-		expect(headers?.["X-OpenRouter-Categories"]).toBe("cli-agent");
+		expect(headers).toBeUndefined();
 	});
 
-	it("lets provider and request headers override the defaults", async () => {
+	it("does not add default Cloudflare headers", async () => {
+		const headers = await captureHeaders(
+			createModel("cloudflare-workers-ai", "https://api.cloudflare.com/client/v4/accounts/123/ai/run"),
+		);
+
+		expect(headers).toBeUndefined();
+	});
+
+	it("preserves provider and request headers without adding defaults", async () => {
 		const headers = await captureHeaders(createModel("openrouter", "https://openrouter.ai/api/v1"), {
 			providerHeaders: {
 				"HTTP-Referer": "https://provider.example",
@@ -183,9 +164,11 @@ describe("createAgentSession OpenRouter attribution headers", () => {
 			},
 		});
 
-		expect(headers?.["HTTP-Referer"]).toBe("https://provider.example");
-		expect(headers?.["X-OpenRouter-Title"]).toBe("request-title");
-		expect(headers?.["X-OpenRouter-Categories"]).toBe("provider-category");
+		expect(headers).toEqual({
+			"HTTP-Referer": "https://provider.example",
+			"X-OpenRouter-Title": "request-title",
+			"X-OpenRouter-Categories": "provider-category",
+		});
 	});
 
 	it("adds OpenCode session headers", async () => {

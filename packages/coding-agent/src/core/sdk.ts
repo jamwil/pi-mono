@@ -15,7 +15,6 @@ import type { ResourceLoader } from "./resource-loader.ts";
 import { DefaultResourceLoader } from "./resource-loader.ts";
 import { getDefaultSessionDir, SessionManager } from "./session-manager.ts";
 import { SettingsManager } from "./settings-manager.ts";
-import { isInstallTelemetryEnabled } from "./telemetry.ts";
 import { time } from "./timings.ts";
 import {
 	createBashTool,
@@ -126,39 +125,12 @@ function getDefaultAgentDir(): string {
 	return getAgentDir();
 }
 
-function getAttributionHeaders(
-	model: Model<any>,
-	settingsManager: SettingsManager,
-	sessionId?: string,
-): Record<string, string> | undefined {
+function getDefaultProviderHeaders(model: Model<any>, sessionId?: string): Record<string, string> | undefined {
 	if (
 		sessionId &&
 		(model.provider === "opencode" || model.provider === "opencode-go" || model.baseUrl.includes("opencode.ai"))
 	) {
 		return { "x-opencode-session": sessionId, "x-opencode-client": "pi" };
-	}
-
-	if (!isInstallTelemetryEnabled(settingsManager)) {
-		return undefined;
-	}
-
-	if (model.provider === "openrouter" || model.baseUrl.includes("openrouter.ai")) {
-		return {
-			"HTTP-Referer": "https://pi.dev",
-			"X-OpenRouter-Title": "pi",
-			"X-OpenRouter-Categories": "cli-agent",
-		};
-	}
-
-	if (
-		model.provider === "cloudflare-workers-ai" ||
-		model.provider === "cloudflare-ai-gateway" ||
-		model.baseUrl.includes("api.cloudflare.com") ||
-		model.baseUrl.includes("gateway.ai.cloudflare.com")
-	) {
-		return {
-			"User-Agent": "pi-coding-agent",
-		};
 	}
 
 	return undefined;
@@ -346,7 +318,7 @@ export async function createAgentSession(options: CreateAgentSessionOptions = {}
 				(model.api === "openai-codex-responses" ? settingsManager.getHttpIdleTimeoutMs() : undefined);
 			const websocketConnectTimeoutMs =
 				options?.websocketConnectTimeoutMs ?? settingsManager.getWebSocketConnectTimeoutMs();
-			const attributionHeaders = getAttributionHeaders(model, settingsManager, options?.sessionId);
+			const defaultProviderHeaders = getDefaultProviderHeaders(model, options?.sessionId);
 			return streamSimple(model, context, {
 				...options,
 				apiKey: auth.apiKey,
@@ -355,8 +327,8 @@ export async function createAgentSession(options: CreateAgentSessionOptions = {}
 				maxRetries: options?.maxRetries ?? providerRetrySettings.maxRetries,
 				maxRetryDelayMs: options?.maxRetryDelayMs ?? providerRetrySettings.maxRetryDelayMs,
 				headers:
-					attributionHeaders || auth.headers || options?.headers
-						? { ...attributionHeaders, ...auth.headers, ...options?.headers }
+					defaultProviderHeaders || auth.headers || options?.headers
+						? { ...defaultProviderHeaders, ...auth.headers, ...options?.headers }
 						: undefined,
 			});
 		},
