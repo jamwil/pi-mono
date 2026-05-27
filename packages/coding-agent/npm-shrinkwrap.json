@@ -1,17 +1,17 @@
 {
-	"name": "@earendil-works/pi-coding-agent",
+	"name": "@jamwil/pi-coding-agent",
 	"version": "0.76.0",
 	"lockfileVersion": 3,
 	"requires": true,
 	"packages": {
 		"": {
-			"name": "@earendil-works/pi-coding-agent",
+			"name": "@jamwil/pi-coding-agent",
 			"version": "0.76.0",
 			"license": "MIT",
 			"dependencies": {
-				"@earendil-works/pi-agent-core": "^0.76.0",
-				"@earendil-works/pi-ai": "^0.76.0",
-				"@earendil-works/pi-tui": "^0.76.0",
+				"@earendil-works/pi-agent-core": "0.76.0",
+				"@earendil-works/pi-ai": "0.76.0",
+				"@earendil-works/pi-tui": "0.76.0",
 				"@silvia-odwyer/photon-node": "0.3.4",
 				"chalk": "5.6.2",
 				"cross-spawn": "7.0.6",
