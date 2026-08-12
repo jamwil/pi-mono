@@ -61,8 +61,9 @@ const ExtensionAuthoringJudge = createJudge<PiCodingAgentInput, ExtensionAuthori
 				output.extensionSource.matchAll(/\b(?:from|import)\s+["']([^"']+)["']/g),
 				(match) => match[1],
 			);
-			if (!imports.includes("@earendil-works/pi-coding-agent")) {
-				failures.push("extension does not import the canonical @earendil-works/pi-coding-agent package");
+			const canonicalImports = ["@jamwil/pi-coding-agent", "@earendil-works/pi-coding-agent"];
+			if (!canonicalImports.some((name) => imports.includes(name))) {
+				failures.push("extension does not import the canonical @jamwil/pi-coding-agent package");
 			}
 			if (imports.some((specifier) => specifier.startsWith("@mariozechner/"))) {
 				failures.push("extension imports a legacy @mariozechner package");
