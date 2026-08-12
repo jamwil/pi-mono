@@ -285,7 +285,7 @@ describe("package commands", () => {
 		}
 	});
 
-	it("uses saved project trust during update", async () => {
+	it("skips update despite saved project trust when offline", async () => {
 		mkdirSync(join(projectDir, ".pi"), { recursive: true });
 		const fakeNpmPath = join(tempDir, "fake-trusted-project-npm.cjs");
 		const recordPath = join(tempDir, "trusted-project-update.json");
@@ -303,7 +303,7 @@ describe("package commands", () => {
 		try {
 			await expect(main(["update", "--extensions"])).resolves.toBeUndefined();
 
-			expect(existsSync(recordPath)).toBe(true);
+			expect(existsSync(recordPath)).toBe(false);
 			expect(process.exitCode).toBeUndefined();
 		} finally {
 			logSpy.mockRestore();
