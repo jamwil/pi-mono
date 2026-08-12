@@ -18,10 +18,10 @@ prerelease suffix alone (`0.84.1-jamwil.0`) would sort below it.
 Dev: same base, `-dev.N` suffix, published to the `dev` dist-tag. `dev` sorts
 below `jamwil` lexically, so `latest` stays on the stable release.
 
-- `0.84.2-dev.0` -> `0.84.2-dev.1`
+- `0.84.2-dev.1` -> `0.84.2-dev.1`
 - Do not use `jamwil-dev.N` (non-numeric id sorts above the release).
 
-Tags match versions: `v0.84.2-jamwil.0`, `v0.84.2-dev.0`.
+Tags match versions: `v0.84.2-jamwil.0`, `v0.84.2-dev.1`.
 
 ## Stable publish
 
@@ -71,7 +71,7 @@ Same flow with `dev` version, dev scripts, and the `dev` dist-tag. Usually
 untagged.
 
 ```bash
-npm version 0.84.2-dev.0 -w packages/coding-agent --no-git-tag-version
+npm version 0.84.2-dev.1 -w packages/coding-agent --no-git-tag-version
 npm install --package-lock-only --ignore-scripts
 npm run shrinkwrap:coding-agent
 npm run install-lock:coding-agent
@@ -83,13 +83,13 @@ cd /tmp && npm install /path/to/jamwil-pi-coding-agent-*.tgz
 npx pi --version
 
 git add packages/coding-agent/package.json package-lock.json packages/coding-agent/npm-shrinkwrap.json packages/coding-agent/install-lock/package.json packages/coding-agent/install-lock/package-lock.json
-git commit -m "Dev @jamwil/pi-coding-agent v0.84.2-dev.0"
+git commit -m "Dev @jamwil/pi-coding-agent v0.84.2-dev.1"
 npm run publish:dev:coding-agent
 
 # Optional tag
-git tag v0.84.2-dev.0
+git tag v0.84.2-dev.1
 git push origin HEAD
-git push origin v0.84.2-dev.0
+git push origin v0.84.2-dev.1
 ```
 
 When upstream releases the version you were deving toward (e.g. `0.84.2`), bump
