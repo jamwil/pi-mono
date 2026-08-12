@@ -157,7 +157,6 @@ import { UserMessageSelectorComponent } from "./components/user-message-selector
 import { editInExternalEditor } from "./external-editor.ts";
 import { refreshModelCatalogs } from "./model-catalog-refresh.ts";
 import { getModelSearchText } from "./model-search.ts";
-import { shareSession } from "./session-share.ts";
 import {
 	getAvailableThemes,
 	getAvailableThemesWithPaths,
@@ -3010,11 +3009,6 @@ export class InteractiveMode {
 			}
 			if (text === "/import" || text.startsWith("/import ")) {
 				await this.handleImportCommand(text);
-				this.editor.setText("");
-				return;
-			}
-			if (text === "/share") {
-				await this.handleShareCommand();
 				this.editor.setText("");
 				return;
 			}
@@ -6101,17 +6095,6 @@ export class InteractiveMode {
 			}
 			await this.handleFatalRuntimeError("Failed to import session", error);
 		}
-	}
-
-	private async handleShareCommand(): Promise<void> {
-		await shareSession({
-			session: this.session,
-			ui: this.ui,
-			editorContainer: this.editorContainer,
-			editor: this.editor,
-			showStatus: (message) => this.showStatus(message),
-			showError: (message) => this.showError(message),
-		});
 	}
 
 	private async handleCopyCommand(
