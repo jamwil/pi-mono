@@ -151,6 +151,8 @@ For distributed pi packages installed with `pi install` (npm or git), runtime de
 
 Node.js built-ins (`node:fs`, `node:path`, etc.) are also available.
 
+The standalone Node distribution embeds the packages listed above for runtime imports, including `typebox/compile`, `typebox/value`, `@earendil-works/pi-ai/compat`, `@earendil-works/pi-ai/oauth`, and `@earendil-works/pi-ai/providers/all`. It also supports `@earendil-works/pi-agent-core` and the legacy `@mariozechner/*` package names. Other third-party runtime dependencies are not embedded; install them in `node_modules` next to the extension (or in a parent directory).
+
 ## Writing an Extension
 
 An extension exports a default factory function that receives `ExtensionAPI`. The factory can be synchronous or asynchronous:
