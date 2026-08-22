@@ -82,6 +82,7 @@ const isNodeSeaBinary =
 declare const PI_BUNDLED_NODE: boolean;
 const isBundledNode = typeof PI_BUNDLED_NODE !== "undefined" && PI_BUNDLED_NODE;
 const isTypeScriptSourceRuntime = !isBunBinary && path.extname(fileURLToPath(import.meta.url)) === ".ts";
+const isStandaloneBundle = process.env.PI_STANDALONE_BUNDLE === "1";
 
 /**
  * Get aliases for jiti (used in built Node.js mode).
@@ -500,9 +501,9 @@ async function loadExtensionModule(extensionPath: string, cacheToken?: Extension
 	const jiti = createJiti(import.meta.url, {
 		moduleCache: false,
 		// Compiled binaries and the bundled Node distribution use embedded modules.
-		// Source TypeScript reuses host modules and root tsconfig paths. Unbundled
-		// Node builds use dist aliases.
-		...(isBunBinary || isNodeSeaBinary || isBundledNode
+		// Standalone distributions use embedded modules. Source TypeScript reuses host
+		// modules and root tsconfig paths. The regular built Node package uses dist aliases.
+		...(isBunBinary || isNodeSeaBinary || isBundledNode || isStandaloneBundle
 			? { virtualModules: VIRTUAL_MODULES, tryNative: false }
 			: isTypeScriptSourceRuntime
 				? { virtualModules: VIRTUAL_MODULES, tsconfigPaths: true }
