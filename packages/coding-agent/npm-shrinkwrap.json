@@ -1,12 +1,12 @@
 {
 	"name": "@jamwil/pi-coding-agent",
-	"version": "0.84.2",
+	"version": "0.84.3-dev.0",
 	"lockfileVersion": 3,
 	"requires": true,
 	"packages": {
 		"": {
 			"name": "@jamwil/pi-coding-agent",
-			"version": "0.84.2",
+			"version": "0.84.3-dev.0",
 			"license": "MIT",
 			"dependencies": {
 				"@earendil-works/pi-agent-core": "^0.84.2",

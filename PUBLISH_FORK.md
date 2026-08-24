@@ -11,10 +11,11 @@ Stable: bump the upstream patch and append `-jamwil.N`.
 upstream 0.84.1 -> 0.84.2-jamwil.0 -> 0.84.2-jamwil.1
 ```
 
-Dev: use the same base with `-dev.N` and the `dev` dist-tag.
+Dev: bump the patch for each release, append `-dev.0`, and use the `dev`
+dist-tag.
 
 ```text
-0.84.2-dev.0 -> 0.84.2-dev.1
+0.84.2-dev.0 -> 0.84.3-dev.0
 ```
 
 Tags match versions: `v0.84.2-jamwil.0`, `v0.84.2-dev.0`. Do not use
@@ -80,8 +81,12 @@ cp -R "$UNPACK_DIR/package/dist/standalone/." "$STANDALONE_DIR/"
 )
 ```
 
-Use the pi4py RPC client with `STANDALONE_DIR` for one real prompt. Wait for
-`agent_settled` and verify the response.
+Use the Python RPC smoke client with `STANDALONE_DIR` for one real prompt. It
+waits for `agent_settled` and verifies the response:
+
+```bash
+python3 scripts/smoke-standalone-rpc.py "$STANDALONE_DIR"
+```
 
 ### Publish
 
@@ -128,4 +133,5 @@ git push origin "v$VERSION"
 ```
 
 After rebasing onto a new upstream release, bump both bases. For example,
-upstream `0.84.2` uses stable `0.84.3-jamwil.0` and dev `0.84.3-dev.N`.
+upstream `0.84.2` starts with stable `0.84.3-jamwil.0` and dev
+`0.84.3-dev.0`; subsequent dev releases continue bumping the patch.
