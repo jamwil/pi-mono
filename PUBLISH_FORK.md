@@ -44,49 +44,31 @@ npm run publish:dry:coding-agent
 
 Set `NODE24` to the Node 24 executable shipped by `nodejs-wheel-binaries`. Set
 provider credentials plus `PI_SMOKE_PROVIDER` and `PI_SMOKE_MODEL` for the
-pi4py deployment.
+pi4py deployment, then run the smoke wrapper from the repository root:
 
 ```bash
-: "${NODE24:?Set NODE24 to the nodejs-wheel-binaries Node 24 executable}"
-: "${PI_SMOKE_PROVIDER:?Set PI_SMOKE_PROVIDER}"
-: "${PI_SMOKE_MODEL:?Set PI_SMOKE_MODEL}"
+export NODE24=/path/to/nodejs_wheel/bin/node
+export PI_SMOKE_PROVIDER=openrouter
+export PI_SMOKE_MODEL=openai/gpt-5.4
+# Export the corresponding provider credential, such as OPENROUTER_API_KEY.
 
-PACK_DIR=$(mktemp -d)
-TARBALL="$PACK_DIR/$(npm pack -w packages/coding-agent --pack-destination "$PACK_DIR" --silent)"
-
-# Normal npm package.
-NPM_SMOKE_DIR=$(mktemp -d)
-(
-  cd "$NPM_SMOKE_DIR"
-  npm install "$TARBALL"
-  npx pi --help
-  npx pi --version
-  npx pi --provider "$PI_SMOKE_PROVIDER" --model "$PI_SMOKE_MODEL" -p "Say exactly: ok"
-)
-
-# Standalone files extracted exactly as pi4py will consume them.
-UNPACK_DIR=$(mktemp -d)
-STANDALONE_DIR=$(mktemp -d)
-tar -xzf "$TARBALL" -C "$UNPACK_DIR"
-cp -R "$UNPACK_DIR/package/dist/standalone/." "$STANDALONE_DIR/"
-(
-  cd "$STANDALONE_DIR"
-  test ! -d node_modules
-  test "$(find . -type f | wc -l | tr -d ' ')" -le 30
-  HOME="$STANDALONE_DIR/home" "$NODE24" ./cli.mjs --help
-  HOME="$STANDALONE_DIR/home" "$NODE24" ./cli.mjs --version
-  printf '%s\n' '{"id":"smoke","type":"get_state"}' | \
-    HOME="$STANDALONE_DIR/home" "$NODE24" ./cli.mjs --mode rpc --no-session \
-      --provider "$PI_SMOKE_PROVIDER" --model "$PI_SMOKE_MODEL"
-)
+scripts/smoke-fork-release.sh
 ```
 
-Use the Python RPC smoke client with `STANDALONE_DIR` for one real prompt. It
-waits for `agent_settled` and verifies the response:
+The script:
 
-```bash
-python3 scripts/smoke-standalone-rpc.py "$STANDALONE_DIR"
-```
+1. Packs the coding-agent workspace into a temporary tarball.
+2. Installs that tarball outside the repository and checks `--help`, `--version`,
+   and one real print-mode prompt.
+3. Extracts only `dist/standalone`, matching pi4py packaging.
+4. Verifies that the standalone directory has no `node_modules` and at most 30
+   files.
+5. Runs standalone `--help`, `--version`, and RPC `get_state` with `NODE24`.
+6. Runs `scripts/smoke-standalone-rpc.py`, waits for `agent_settled`, and verifies
+   that a real RPC prompt returns exactly `ok`.
+
+Temporary files are removed on success or failure. A successful run ends with
+`RELEASE_SMOKE=passed`.
 
 ### Publish
 

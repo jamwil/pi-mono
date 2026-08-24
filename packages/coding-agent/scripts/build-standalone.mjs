@@ -21,6 +21,7 @@ const result = await build({
 	outfile: outputFile,
 	metafile: true,
 	legalComments: "none",
+	define: { "process.env.PI_STANDALONE_BUNDLE": '"1"' },
 	logOverride: { "ignored-bare-import": "silent" },
 	banner: {
 		js: 'import { createRequire as __createRequire } from "node:module"; const require = __createRequire(import.meta.url);',
