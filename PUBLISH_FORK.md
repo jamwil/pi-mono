@@ -64,7 +64,8 @@ The script:
 4. Verifies that the standalone directory has no `node_modules` and at most 30
    files.
 5. Runs standalone `--help`, `--version`, and RPC `get_state` with `NODE24`.
-6. Runs `scripts/smoke-standalone-rpc.py`, waits for `agent_settled`, and verifies
+6. Verifies the standalone image worker and Photon WASM asset can resize an image.
+7. Runs `scripts/smoke-standalone-rpc.py`, waits for `agent_settled`, and verifies
    that a real RPC prompt returns exactly `ok`.
 
 Temporary files are removed on success or failure. A successful run ends with

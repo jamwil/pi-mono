@@ -69,6 +69,7 @@ cp -R "$unpack_dir/package/dist/standalone/." "$standalone_dir/"
 	printf '%s\n' '{"id":"smoke","type":"get_state"}' | \
 		HOME="$standalone_dir/home" "$NODE24" ./cli.mjs --mode rpc --no-session \
 			--provider "$PI_SMOKE_PROVIDER" --model "$PI_SMOKE_MODEL"
+	"$NODE24" "$repo/scripts/smoke-standalone-image-resize.mjs" "$standalone_dir"
 )
 
 python3 "$repo/scripts/smoke-standalone-rpc.py" "$standalone_dir"
