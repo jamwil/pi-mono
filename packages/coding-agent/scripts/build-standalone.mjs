@@ -74,5 +74,16 @@ for (const theme of ["dark.json", "light.json"]) {
 	await cp(path.join(packageDir, "src", "modes", "interactive", "theme", theme), path.join(themeOutputDir, theme));
 }
 
+const exportTemplateOutputDir = path.join(outputDir, "dist", "core", "export-html");
+await mkdir(exportTemplateOutputDir, { recursive: true });
+for (const template of ["template.html", "template.css", "template.js"]) {
+	await cp(path.join(packageDir, "src", "core", "export-html", template), path.join(exportTemplateOutputDir, template));
+}
+await cp(
+	path.join(packageDir, "src", "core", "export-html", "vendor"),
+	path.join(exportTemplateOutputDir, "vendor"),
+	{ recursive: true },
+);
+
 await chmod(outputFile, 0o755);
 console.log(`Built standalone Node CLI at ${path.relative(packageDir, outputFile)}`);
